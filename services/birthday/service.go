@@ -33,7 +33,7 @@ func (s *service) Set(request SetBirthdayRequest) error {
 	jobRequest.Schedule.Month = request.Month
 	jobRequest.Schedule.DayOfMonth = string(request.Day)
 
-	job, err := s.SchedulingClient.Create(jobRequest)
+	response, err := s.SchedulingClient.Create(jobRequest)
 
 	if err != nil {
 		return err
@@ -46,7 +46,7 @@ func (s *service) Set(request SetBirthdayRequest) error {
 	b.Day = request.Day
 	b.UserId = request.UserId
 	b.ChannelId = request.ChannelId
-	b.JobId = job.Job.Id
+	b.JobId = response.Job.Id
 	b.Enabled = true
 
 	return s.Storage.Save(b)

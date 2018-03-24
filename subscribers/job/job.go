@@ -8,12 +8,8 @@ import (
 )
 
 type Config struct {
-	HandlerConfig     handler.HandlerConfig
-	BirthdayJobConfig JobConfig
-}
-
-type JobConfig struct {
-	Message string
+	HandlerConfig handler.HandlerConfig
+	Message       string
 }
 
 type Job interface {
@@ -21,18 +17,20 @@ type Job interface {
 }
 
 type job struct {
-	Config JobConfig
+	Logger log.Logger
+	Config Config
 }
 
-func NewJob(config JobConfig) Job {
-	return &job{config}
+func NewJob(logger log.Logger, config Config) Job {
+	logger = log.With(logger, "component", "birthday.job")
+	return &job{logger, config}
 }
 
 func (j *job) IsJob(request handler.JobRequest) (bool, error) {
 	return request.Type == "birthday", nil
 }
 
-func (j *job) Run(request handler.JobRequest) (handler.Results, error) {
+func (j *job) Handle(request handler.JobRequest) (handler.Results, error) {
 	message := fmt.Sprintf("<@!%s> %s", request.User, j.Config.Message)
 
 	result := handler.Result{
@@ -42,18 +40,14 @@ func (j *job) Run(request handler.JobRequest) (handler.Results, error) {
 	return handler.Results{result}, nil
 }
 
-func Start(logger log.Logger, config Config) error {
-	logger = log.With(logger, "component", "birthday.job")
-
-	handler, err := handler.NewJobHandler(logger, config.HandlerConfig)
+func (j *job) Start() error {
+	handler, err := handler.NewJobHandler(j.Logger, j.Config.HandlerConfig)
 
 	if err != nil {
 		return err
 	}
 
-	birthdayJob := NewJob(config.BirthdayJobConfig)
-
-	handler.Start(birthdayJob)
+	handler.Start(j)
 
 	return nil
 }

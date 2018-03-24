@@ -30,7 +30,9 @@ func main() {
 		panic(err)
 	}
 
-	err = job.Start(logger, config.JobConfig)
+	j := job.NewJob(logger, config.JobConfig)
+
+	err = j.Start()
 
 	if err != nil {
 		panic(err)

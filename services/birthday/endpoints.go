@@ -12,6 +12,6 @@ func MakeSetBirthdayEndpoint(service Service) endpoint.Endpoint {
 
 		err := service.Set(request)
 
-		return nil, err
+		return SetBirthdayResponse{}, err
 	}
 }

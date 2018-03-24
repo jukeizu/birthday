@@ -8,18 +8,17 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/gorilla/mux"
 
-	"github.com/jukeizu/treediagram-services-scheduler/storage"
 	"github.com/shawntoffel/services-core/transport"
 )
 
 type SetBirthdayRequest struct {
-	User     string
-	Birthday string
+	UserId    string
+	ChannelId string
+	Month     string
+	Day       int
 }
 
-type SetBirthdayResponse struct {
-	Job storage.Job `json:"job"`
-}
+type SetBirthdayResponse struct{}
 
 func DecodeSetBirthdayRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	request := SetBirthdayRequest{}

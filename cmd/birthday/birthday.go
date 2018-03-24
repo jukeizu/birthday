@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/jukeizu/birthday/job"
+	"github.com/jukeizu/birthday/subscribers/job"
 	"github.com/shawntoffel/services-core/command"
 	configreader "github.com/shawntoffel/services-core/config"
 	"github.com/shawntoffel/services-core/logging"

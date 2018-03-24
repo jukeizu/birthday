@@ -1,6 +1,6 @@
 language: go
 before_deploy:
-  - GOARCH=amd64 go build -o bin/$(basename $TRAVIS_REPO_SLUG)-$TRAVIS_TAG
+  - GOARCH=amd64 go build -o bin/$(basename $TRAVIS_REPO_SLUG)-$TRAVIS_TAG ./cmd/...
 deploy:
   provider: releases
   api_key: $GITHUB_TOKEN

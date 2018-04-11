@@ -27,13 +27,13 @@ func (c *command) Set() Set {
 }
 
 func (s *set) IsCommand(request handler.Request) (bool, error) {
-	_, matches := parse(request.Content)
+	_, matches := s.parse(request.Content)
 
 	return matches, nil
 }
 
 func (s *set) Handle(request handler.Request) (handler.Results, error) {
-	input, match := parse(request.Content)
+	input, match := s.parse(request.Content)
 
 	if !match {
 		return handler.Results{}, nil
@@ -69,7 +69,7 @@ func (s *set) Handle(request handler.Request) (handler.Results, error) {
 	return handler.Results{result}, nil
 }
 
-func parse(content string) (string, bool) {
+func (s *set) parse(content string) (string, bool) {
 	re := regexp.MustCompile(`!setbirthday (\w+) (\d+)`)
 
 	matches := re.FindAllStringSubmatch(content, 1)

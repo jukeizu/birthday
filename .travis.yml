@@ -1,4 +1,9 @@
 language: go
+
+script:
+  - go vet ./...
+  - go test -v -race ./...
+
 before_deploy:
   - GOARCH=amd64 go build -o bin/$(basename $TRAVIS_REPO_SLUG)-$TRAVIS_TAG ./cmd/...
 deploy:

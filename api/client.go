@@ -1,7 +1,7 @@
 package api
 
 import (
-	"github.com/jukeizu/treediagram-client-base"
+	"github.com/jukeizu/client-base"
 )
 
 type Client interface {

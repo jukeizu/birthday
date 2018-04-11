@@ -63,7 +63,7 @@ func (s *service) Remove(userId string, channelId string) error {
 		return nil
 	}
 
-	_, err := s.SchedulingClient.Disable(schedulingclient.DisableJobRequest{existing.JobId})
+	_, err := s.SchedulingClient.Disable(schedulingclient.DisableJobRequest{Id: existing.JobId})
 
 	if err != nil {
 		return err

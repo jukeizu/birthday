@@ -1,6 +1,8 @@
 package birthday
 
 import (
+	"strconv"
+
 	"github.com/jukeizu/clients/scheduler/scheduler"
 	"github.com/rs/xid"
 )
@@ -31,7 +33,9 @@ func (s *service) Set(request SetBirthdayRequest) error {
 	jobRequest.User = request.UserId
 	jobRequest.Destination = request.ChannelId
 	jobRequest.Schedule.Month = request.Month
-	jobRequest.Schedule.DayOfMonth = string(request.Day)
+	jobRequest.Schedule.DayOfMonth = strconv.Itoa(request.Day)
+	jobRequest.Schedule.Hour = "11"
+	jobRequest.Schedule.Minute = "0"
 
 	response, err := s.SchedulingClient.Create(jobRequest)
 
@@ -53,17 +57,13 @@ func (s *service) Set(request SetBirthdayRequest) error {
 }
 
 func (s *service) Remove(userId string, channelId string) error {
-	existing, err := s.Storage.Birthday(userId, channelId)
-
-	if err != nil {
-		return err
-	}
+	existing, _ := s.Storage.Birthday(userId, channelId)
 
 	if existing.Id == "" {
 		return nil
 	}
 
-	_, err = s.SchedulingClient.Disable(schedulingclient.DisableJobRequest{existing.JobId})
+	_, err := s.SchedulingClient.Disable(schedulingclient.DisableJobRequest{existing.JobId})
 
 	if err != nil {
 		return err

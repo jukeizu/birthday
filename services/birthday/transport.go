@@ -12,10 +12,10 @@ import (
 )
 
 type SetBirthdayRequest struct {
-	UserId    string
-	ChannelId string
-	Month     string
-	Day       int
+	UserId    string `json:"userId"`
+	ChannelId string `json:"channelId"`
+	Month     string `json:"month"`
+	Day       int    `json:"day"`
 }
 
 type SetBirthdayResponse struct{}

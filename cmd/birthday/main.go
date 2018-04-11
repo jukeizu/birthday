@@ -2,8 +2,11 @@ package main
 
 import (
 	"os"
+	"sync"
 
 	"github.com/jukeizu/birthday/subscribers/job"
+	base "github.com/jukeizu/client-base"
+	mdb "github.com/shawntoffel/GoMongoDb"
 	"github.com/shawntoffel/services-core/command"
 	configreader "github.com/shawntoffel/services-core/config"
 	"github.com/shawntoffel/services-core/logging"
@@ -12,7 +15,10 @@ import (
 var commandArgs command.CommandArgs
 
 type Config struct {
-	JobConfig job.Config
+	SchedulingClient base.ClientConfig
+	JobConfig        job.Config
+	DbConfig         mdb.DbConfig
+	ServiceConfig    configreader.ServiceConfig
 }
 
 func init() {
@@ -30,11 +36,10 @@ func main() {
 		panic(err)
 	}
 
-	j := job.NewJob(logger, config.JobConfig)
+	wg := sync.WaitGroup{}
 
-	err = j.Start()
+	StartServices(&wg, logger, config)
+	StartJobs(&wg, logger, config)
 
-	if err != nil {
-		panic(err)
-	}
+	wg.Wait()
 }

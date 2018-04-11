@@ -5,7 +5,7 @@ import (
 
 	"github.com/go-kit/kit/log"
 
-	"github.com/jukeizu/birthday/subscribers/job"
+	"github.com/jukeizu/birthday/subscribers/jobs"
 )
 
 func StartJobs(wg *sync.WaitGroup, logger log.Logger, config Config) {

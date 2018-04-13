@@ -8,9 +8,9 @@ import (
 )
 
 type Config struct {
-	NotificationChannel string
-	Hour                string
-	Minute              string
+	NotificationServer string
+	Hour               string
+	Minute             string
 }
 
 type Service interface {
@@ -38,7 +38,7 @@ func (s *service) Set(request SetBirthdayRequest) error {
 	jobRequest := schedulingclient.CreateJobRequest{}
 	jobRequest.Type = "birthday"
 	jobRequest.User = request.UserId
-	jobRequest.Destination = s.Config.NotificationChannel
+	jobRequest.Destination = s.Config.NotificationServer
 	jobRequest.Schedule.Month = request.Month
 	jobRequest.Schedule.DayOfMonth = strconv.Itoa(request.Day)
 	jobRequest.Schedule.Hour = s.Config.Hour
@@ -57,7 +57,7 @@ func (s *service) Set(request SetBirthdayRequest) error {
 	b.Day = request.Day
 	b.UserId = request.UserId
 	b.ChannelId = request.ChannelId
-	b.ServerId = request.ServerId
+	b.ServerId = s.Config.NotificationServer
 	b.JobId = response.Job.Id
 	b.Enabled = true
 

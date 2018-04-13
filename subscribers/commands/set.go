@@ -3,9 +3,13 @@ package commands
 import (
 	"fmt"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/go-kit/kit/log"
+	shellwords "github.com/mattn/go-shellwords"
+	"github.com/olebedev/when"
+	"github.com/olebedev/when/rules/en"
 
 	"github.com/jukeizu/birthday/api"
 	"github.com/jukeizu/handler"
@@ -21,39 +25,42 @@ type set struct {
 }
 
 func (c *command) Set() Set {
-	logger := log.With(c.logger, "component", "command.birthday.set")
+	logger := log.With(c.logger, "command", "birthday.set")
 
 	return &set{c, logger}
 }
 
 func (s *set) IsCommand(request handler.Request) (bool, error) {
-	_, matches := s.parse(request.Content)
-
-	return matches, nil
+	return regexp.MatchString(`!setbirthday (.*?)`, request.Content)
 }
 
 func (s *set) Handle(request handler.Request) (handler.Results, error) {
-	input, match := s.parse(request.Content)
-
-	if !match {
-		return handler.Results{}, nil
-	}
-
-	t, err := time.Parse("January 2", input)
+	args, err := shellwords.Parse(request.Content)
 
 	if err != nil {
+		return handler.Results{}, err
+	}
+
+	input := strings.Join(args[1:], " ")
+
+	parsed, err := s.parseTime(input)
+
+	if err != nil || parsed == nil {
 		errorMessage := handler.Result{
-			Content: fmt.Sprintf("`%s` is not a valid input.", input),
+			Content: fmt.Sprintf("`%s` is not a valid date format.", input),
 		}
 
 		return handler.Results{errorMessage}, nil
 	}
 
+	month := parsed.Time.Month().String()
+	day := parsed.Time.Day()
+
 	setRequest := api.SetBirthdayRequest{
 		UserId:    request.Author.Id,
 		ChannelId: request.ChannelId,
-		Month:     t.Month().String(),
-		Day:       t.Day(),
+		Month:     month,
+		Day:       day,
 	}
 
 	_, err = s.command.Client.Birthday().Set(setRequest)
@@ -63,26 +70,23 @@ func (s *set) Handle(request handler.Request) (handler.Results, error) {
 	}
 
 	result := handler.Result{
-		Content: fmt.Sprintf("Ok. Your birthday is %s, %d.", t.Month().String(), t.Day()),
+		Content: fmt.Sprintf("Your birthday has been set to %s, %d. :birthday:", month, day),
 	}
 
 	return handler.Results{result}, nil
 }
 
-func (s *set) parse(content string) (string, bool) {
-	re := regexp.MustCompile(`!setbirthday (\w+) (\d+)`)
+func (s *set) parseTime(content string) (*when.Result, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			s.logger.Log("panic", r)
+		}
+	}()
 
-	matches := re.FindAllStringSubmatch(content, 1)
+	w := when.New(nil)
+	w.Add(en.All...)
 
-	if len(matches) < 1 {
-		return "", false
-	}
+	r, err := w.Parse(content, time.Now())
 
-	match := matches[0]
-
-	if len(match) < 3 {
-		return "", false
-	}
-
-	return match[1] + " " + match[2], true
+	return r, err
 }

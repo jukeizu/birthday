@@ -7,6 +7,10 @@ import (
 	"github.com/rs/xid"
 )
 
+type Config struct {
+	NotificationChannel string
+}
+
 type Service interface {
 	Set(SetBirthdayRequest) error
 	Remove(userId string, channelId string) error
@@ -15,14 +19,15 @@ type Service interface {
 type service struct {
 	Storage          BirthdayStorage
 	SchedulingClient schedulingclient.SchedulingClient
+	Config           Config
 }
 
-func NewService(birthdayStorage BirthdayStorage, client schedulingclient.SchedulingClient) Service {
-	return &service{birthdayStorage, client}
+func NewService(birthdayStorage BirthdayStorage, client schedulingclient.SchedulingClient, config Config) Service {
+	return &service{birthdayStorage, client, config}
 }
 
 func (s *service) Set(request SetBirthdayRequest) error {
-	err := s.Remove(request.UserId, request.ChannelId)
+	err := s.Remove(request.UserId, request.ServerId)
 
 	if err != nil {
 		return err
@@ -31,7 +36,7 @@ func (s *service) Set(request SetBirthdayRequest) error {
 	jobRequest := schedulingclient.CreateJobRequest{}
 	jobRequest.Type = "birthday"
 	jobRequest.User = request.UserId
-	jobRequest.Destination = request.ChannelId
+	jobRequest.Destination = s.Config.NotificationChannel
 	jobRequest.Schedule.Month = request.Month
 	jobRequest.Schedule.DayOfMonth = strconv.Itoa(request.Day)
 	jobRequest.Schedule.Hour = "11"
@@ -50,14 +55,15 @@ func (s *service) Set(request SetBirthdayRequest) error {
 	b.Day = request.Day
 	b.UserId = request.UserId
 	b.ChannelId = request.ChannelId
+	b.ServerId = request.ServerId
 	b.JobId = response.Job.Id
 	b.Enabled = true
 
 	return s.Storage.Save(b)
 }
 
-func (s *service) Remove(userId string, channelId string) error {
-	existing, _ := s.Storage.Birthday(userId, channelId)
+func (s *service) Remove(userId string, serverId string) error {
+	existing, _ := s.Storage.Birthday(userId, serverId)
 
 	if existing.Id == "" {
 		return nil

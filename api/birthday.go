@@ -9,6 +9,7 @@ type Birthday struct {
 type SetBirthdayRequest struct {
 	UserId    string
 	ChannelId string
+	ServerId  string
 	Month     string
 	Day       int
 }

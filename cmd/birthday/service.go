@@ -21,7 +21,7 @@ func StartServices(wg *sync.WaitGroup, logger log.Logger, config Config) {
 
 		schedulingClient := schedulingclient.NewClient(config.SchedulingClient)
 
-		service := birthday.NewService(storage, schedulingClient)
+		service := birthday.NewService(storage, schedulingClient, config.BirthdayServiceConfig)
 		service = birthday.NewLoggingService(logger, service)
 
 		if err != nil {

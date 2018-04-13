@@ -59,6 +59,7 @@ func (s *set) Handle(request handler.Request) (handler.Results, error) {
 	setRequest := api.SetBirthdayRequest{
 		UserId:    request.Author.Id,
 		ChannelId: request.ChannelId,
+		ServerId:  request.ServerId,
 		Month:     month,
 		Day:       day,
 	}

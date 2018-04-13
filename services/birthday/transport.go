@@ -14,6 +14,7 @@ import (
 type SetBirthdayRequest struct {
 	UserId    string `json:"userId"`
 	ChannelId string `json:"channelId"`
+	ServerId  string `json:"serverId"`
 	Month     string `json:"month"`
 	Day       int    `json:"day"`
 }

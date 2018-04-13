@@ -4,6 +4,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/jukeizu/birthday/services/birthday"
 	"github.com/jukeizu/birthday/subscribers/jobs"
 	base "github.com/jukeizu/client-base"
 	"github.com/jukeizu/handler"
@@ -16,11 +17,12 @@ import (
 var commandArgs command.CommandArgs
 
 type Config struct {
-	SchedulingClient base.ClientConfig
-	JobConfig        job.Config
-	DbConfig         mdb.DbConfig
-	ServiceConfig    configreader.ServiceConfig
-	CommandConfig    CommandConfig
+	SchedulingClient      base.ClientConfig
+	JobConfig             job.Config
+	DbConfig              mdb.DbConfig
+	ServiceConfig         configreader.ServiceConfig
+	CommandConfig         CommandConfig
+	BirthdayServiceConfig birthday.Config
 }
 
 type CommandConfig struct {

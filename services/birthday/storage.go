@@ -11,6 +11,7 @@ type Birthday struct {
 	Day       int
 	UserId    string
 	ChannelId string
+	ServerId  string
 	JobId     string
 	Enabled   bool
 }
@@ -41,10 +42,10 @@ func (s *storage) Save(b Birthday) error {
 	return s.Collection.Insert(b)
 }
 
-func (s *storage) Birthday(userId string, channelId string) (Birthday, error) {
+func (s *storage) Birthday(userId string, serverId string) (Birthday, error) {
 	b := Birthday{}
 
-	err := s.Collection.Find(bson.M{"userid": userId, "channelid": channelId, "enabled": true}).One(&b)
+	err := s.Collection.Find(bson.M{"userid": userId, "serverid": serverId, "enabled": true}).One(&b)
 
 	return b, err
 }

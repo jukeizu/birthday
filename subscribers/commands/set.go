@@ -71,7 +71,7 @@ func (s *set) Handle(request handler.Request) (handler.Results, error) {
 	}
 
 	result := handler.Result{
-		Content: fmt.Sprintf("Your birthday has been set to %s, %d. :birthday:", month, day),
+		Content: fmt.Sprintf("Your birthday has been set to %s %d. :birthday:", month, day),
 	}
 
 	return handler.Results{result}, nil

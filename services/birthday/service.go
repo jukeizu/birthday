@@ -29,7 +29,7 @@ func NewService(birthdayStorage BirthdayStorage, client schedulingclient.Schedul
 }
 
 func (s *service) Set(request SetBirthdayRequest) error {
-	err := s.Remove(request.UserId, request.ServerId)
+	err := s.Remove(request.UserId, s.Config.NotificationServer)
 
 	if err != nil {
 		return err

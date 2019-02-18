@@ -16,6 +16,7 @@ const (
 
 type Repository interface {
 	SetBirthday(*birthdaypb.SetBirthdayRequest) (*birthdaypb.UserBirthday, error)
+	Query(*birthdaypb.QueryBirthdaysRequest) ([]*birthdaypb.UserBirthday, error)
 	Migrate() error
 }
 
@@ -79,4 +80,42 @@ func (r *repository) SetBirthday(req *birthdaypb.SetBirthdayRequest) (*birthdayp
 	)
 
 	return &userBirthday, err
+}
+
+func (r *repository) Query(req *birthdaypb.QueryBirthdaysRequest) ([]*birthdaypb.UserBirthday, error) {
+	userBirthdays := []*birthdaypb.UserBirthday{}
+
+	q := `SELECT id, 
+			serverid, 
+			userid, 
+			month, 
+			day 
+		FROM birthday 
+		WHERE serverid = $1 
+		AND month = $2
+		AND day = $3`
+
+	rows, err := r.Db.Query(q, req.ServerId, req.Month, req.Day)
+	if err != nil {
+		return userBirthdays, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		userBirthday := birthdaypb.UserBirthday{}
+		err := rows.Scan(
+			&userBirthday.Id,
+			&userBirthday.ServerId,
+			&userBirthday.UserId,
+			&userBirthday.Month,
+			&userBirthday.Day,
+		)
+		if err != nil {
+			return userBirthdays, err
+		}
+
+		userBirthdays = append(userBirthdays, &userBirthday)
+	}
+
+	return userBirthdays, nil
 }

@@ -4,6 +4,7 @@ package birthdaypb;
 
 service Birthday {
     rpc SetBirthday(SetBirthdayRequest) returns (SetBirthdayReply) {}
+    rpc Query(QueryBirthdaysRequest) returns (QueryBirthdaysReply) {}
 }
 
 message SetBirthdayRequest {
@@ -23,4 +24,14 @@ message UserBirthday {
 
 message SetBirthdayReply {
     UserBirthday birthday = 1;
+}
+
+message QueryBirthdaysRequest {
+    string serverId = 1;
+    int32 month = 2;
+    int32 day = 3;
+}
+
+message QueryBirthdaysReply {
+    repeated UserBirthday birthdays = 1;
 }

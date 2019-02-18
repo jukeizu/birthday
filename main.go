@@ -12,6 +12,7 @@ import (
 	"github.com/cheapRoc/grpc-zerolog"
 	_ "github.com/jnewmano/grpc-json-proxy/codec"
 	"github.com/jukeizu/birthday/api/protobuf-spec/birthdaypb"
+	"github.com/jukeizu/birthday/treediagram"
 	"github.com/oklog/run"
 	"github.com/rs/xid"
 	"github.com/rs/zerolog"
@@ -108,6 +109,36 @@ func main() {
 			return birthdayServer.Start(grpcAddr)
 		}, func(error) {
 			birthdayServer.Stop()
+		})
+	}
+
+	if flagHandler {
+		clientConn, err := grpc.Dial(serviceAddress, grpc.WithInsecure(),
+			grpc.WithKeepaliveParams(
+				keepalive.ClientParameters{
+					Time:                30 * time.Second,
+					Timeout:             10 * time.Second,
+					PermitWithoutStream: true,
+				},
+			),
+		)
+		if err != nil {
+			logger.Error().Err(err).Str("serviceAddress", serviceAddress).Msg("could not dial service address")
+			os.Exit(1)
+		}
+
+		httpAddr := ":" + httpPort
+
+		client := birthdaypb.NewBirthdayClient(clientConn)
+		handler := treediagram.NewHandler(logger, client, httpAddr)
+
+		g.Add(func() error {
+			return handler.Start()
+		}, func(error) {
+			err := handler.Stop()
+			if err != nil {
+				logger.Error().Err(err).Caller().Msg("couldn't stop handler")
+			}
 		})
 	}
 

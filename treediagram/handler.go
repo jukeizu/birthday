@@ -109,6 +109,10 @@ func (h *handler) parseTime(content string) (*when.Result, error) {
 	w.Add(en.All...)
 
 	r, err := w.Parse(content, time.Now())
+	if err != nil {
+		h.logger.Error().Err(err).Caller().Msg("couldn't parse time")
+		return nil, err
+	}
 
 	return r, err
 }

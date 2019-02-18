@@ -2,12 +2,9 @@ language: go
 go:
   1.11
 
-jobs:
-  include:
-    - stage: "go test & docker build"
-      script: make deps test
-    - # docker build
-      script: make docker-build
+script:
+  - make deps test
+  - make docker-build
 
 before_deploy:
   - echo "$DOCKER_PASS" | docker login -u="$DOCKER_USER" --password-stdin

@@ -29,6 +29,15 @@ func (s Server) SetBirthday(ctx context.Context, req *birthdaypb.SetBirthdayRequ
 	return &birthdaypb.SetBirthdayReply{Birthday: birthday}, nil
 }
 
+func (s Server) Query(ctx context.Context, req *birthdaypb.QueryBirthdaysRequest) (*birthdaypb.QueryBirthdaysReply, error) {
+	birthdays, err := s.repository.Query(req)
+	if err != nil {
+		return nil, err
+	}
+
+	return &birthdaypb.QueryBirthdaysReply{Birthdays: birthdays}, nil
+}
+
 func (s Server) Start(addr string) error {
 	listener, err := net.Listen("tcp", addr)
 	if err != nil {

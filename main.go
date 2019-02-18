@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/cheapRoc/grpc-zerolog"
+	_ "github.com/jnewmano/grpc-json-proxy/codec"
 	"github.com/jukeizu/birthday/api/protobuf-spec/birthdaypb"
 	"github.com/oklog/run"
 	"github.com/rs/xid"

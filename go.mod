@@ -3,6 +3,7 @@ module github.com/jukeizu/birthday
 require (
 	github.com/cheapRoc/grpc-zerolog v0.0.0-20180425150930-27ca9d023ead
 	github.com/golang/protobuf v1.2.0
+	github.com/jnewmano/grpc-json-proxy v0.0.0-20180914194908-38a7fdf2bd5c
 	github.com/lib/pq v1.0.0
 	github.com/oklog/run v1.0.0
 	github.com/rs/xid v1.2.1

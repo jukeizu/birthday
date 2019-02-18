@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"net"
 
 	"github.com/jukeizu/birthday/api/protobuf-spec/birthdaypb"
@@ -20,7 +21,12 @@ func NewServer(logger zerolog.Logger, repository Repository, grpcServer *grpc.Se
 }
 
 func (s Server) SetBirthday(ctx context.Context, req *birthdaypb.SetBirthdayRequest) (*birthdaypb.SetBirthdayReply, error) {
-	return nil, nil
+	birthday, err := s.repository.SetBirthday(req)
+	if err != nil {
+		return nil, errors.New("couldn't set birthday: " + err.Error())
+	}
+
+	return &birthdaypb.SetBirthdayReply{Birthday: birthday}, nil
 }
 
 func (s Server) Start(addr string) error {

@@ -1,16 +1,28 @@
 language: go
+go:
+  1.11
 
-script:
-  - go vet ./...
-  - go test -v -race ./...
+jobs:
+  include:
+    - stage: "go test & docker build"
+      script: make deps test
+    - # docker build
+      script: make docker-build
 
 before_deploy:
-  - GOARCH=amd64 go build -o bin/$(basename $TRAVIS_REPO_SLUG)-$TRAVIS_TAG ./cmd/...
+  - echo "$DOCKER_PASS" | docker login -u="$DOCKER_USER" --password-stdin
+
 deploy:
-  provider: releases
-  api_key: $GITHUB_TOKEN
-  file_glob: true
-  file: bin/*
-  skip_cleanup: true
-  on:
-    tags: true
+  - provider: script
+    script:
+        - make docker-deploy
+    skip_cleanup: true
+    on:
+      branch: dev
+
+  - provider: script
+    script:
+        - make docker-deploy
+    skip_cleanup: true
+    on:
+      tags: true

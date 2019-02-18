@@ -4,10 +4,10 @@ go:
 
 jobs:
   include:
-    - stage: test
+    - stage: "go test & docker build"
       script: make deps test
-    - stage: docker build
-      script: make docker build
+    - # docker build
+      script: make docker-build
 
 before_deploy:
   - echo "$DOCKER_PASS" | docker login -u="$DOCKER_USER" --password-stdin

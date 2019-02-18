@@ -17,6 +17,8 @@ import (
 
 type Handler interface {
 	SetBirthday(contract.Request) (*contract.Response, error)
+	SayHappyBirthday(contract.Job) (*contract.Response, error)
+
 	Start() error
 	Stop() error
 }
@@ -76,11 +78,50 @@ func (h *handler) SetBirthday(request contract.Request) (*contract.Response, err
 	return &contract.Response{Messages: []*contract.Message{&message}}, nil
 }
 
+func (h *handler) SayHappyBirthday(job contract.Job) (*contract.Response, error) {
+	now := time.Now().UTC()
+
+	queryBirthdaysRequest := birthdaypb.QueryBirthdaysRequest{
+		ServerId: job.Destination,
+		Month:    int32(now.Month()),
+		Day:      int32(now.Day()),
+	}
+
+	queryReply, err := h.client.Query(context.Background(), &queryBirthdaysRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	response := &contract.Response{}
+
+	if len(queryReply.Birthdays) < 1 {
+		return response, nil
+	}
+
+	for _, birthday := range queryReply.Birthdays {
+		message := contract.Message{
+			Content: fmt.Sprintf("<@!%s> お誕生日おめでとう Happy Birthday! :birthday:", birthday.UserId),
+		}
+
+		response.Messages = append(response.Messages, &message)
+
+		h.logger.Info().
+			Str("userId", birthday.UserId).
+			Str("serverId", birthday.ServerId).
+			Int32("month", birthday.Month).
+			Int32("day", birthday.Day).
+			Msg("added birthday message for user")
+	}
+
+	return response, nil
+}
+
 func (h *handler) Start() error {
 	h.logger.Info().Msg("starting")
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/setbirthday", h.makeLoggingHttpHandlerFunc("setbirthday", h.SetBirthday))
+	mux.HandleFunc("/sayhappybirthday", h.makeLoggingJobHttpHandlerFunc("sayhappybirthday", h.SayHappyBirthday))
 
 	h.httpServer.Handler = mux
 
@@ -118,12 +159,27 @@ func (h *handler) parseTime(content string) (*when.Result, error) {
 }
 
 func (h *handler) makeLoggingHttpHandlerFunc(name string, f func(contract.Request) (*contract.Response, error)) http.HandlerFunc {
-	contractHandlerFunc := contract.MakeHttpHandlerFunc(f)
+	contractHandlerFunc := contract.MakeRequestHttpHandlerFunc(f)
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		defer func(begin time.Time) {
 			h.logger.Info().
 				Str("intent", name).
+				Str("took", time.Since(begin).String()).
+				Msg("called")
+		}(time.Now())
+
+		contractHandlerFunc.ServeHTTP(w, r)
+	}
+}
+
+func (h *handler) makeLoggingJobHttpHandlerFunc(name string, f func(contract.Job) (*contract.Response, error)) http.HandlerFunc {
+	contractHandlerFunc := contract.MakeJobHttpHandlerFunc(f)
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		defer func(begin time.Time) {
+			h.logger.Info().
+				Str("job", name).
 				Str("took", time.Since(begin).String()).
 				Msg("called")
 		}(time.Now())

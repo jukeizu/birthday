@@ -1,4 +1,4 @@
-FROM golang:1.11 as build
+FROM golang:1.20 as build
 WORKDIR /go/src/github.com/jukeizu/birthday
 COPY Makefile go.mod go.sum ./
 RUN make deps

@@ -3,7 +3,8 @@ VERSION=$(TAG:v%=%)
 REPO=jukeizu/birthday
 GO=GO111MODULE=on go
 BUILD=GOARCH=amd64 $(GO) build -ldflags="-s -w -X main.Version=$(VERSION)" 
-PROTOFILES=$(wildcard api/protobuf-spec/*/*.proto)
+PROTOFILES=$(wildcard .protobuf/birthday/v1/*.proto)
+PROTOPBDEST="../../../api/protobuf-spec"
 PBFILES=$(patsubst %.proto,%.pb.go, $(PROTOFILES))
 
 .PHONY: all deps test proto build clean $(PROTOFILES)
@@ -31,7 +32,7 @@ docker-deploy:
 proto: $(PBFILES)
 
 %.pb.go: %.proto
-	cd $(dir $<) && protoc $(notdir $<) --go_out=plugins=grpc:.
+	cd $(dir $<) && mkdir -p $(PROTOPBDEST)/$(patsubst %.proto,%pb, $(notdir $<)) && protoc $(notdir $<) --go_out=plugins=grpc:$(PROTOPBDEST)/$(patsubst %.proto,%pb, $(notdir $<))
 
 clean:
 	@find bin -type f ! -name '*.toml' -delete -print

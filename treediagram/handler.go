@@ -25,11 +25,11 @@ type Handler interface {
 
 type handler struct {
 	logger     zerolog.Logger
-	client     birthdaypb.BirthdayClient
+	client     birthdaypb.BirthdayServiceClient
 	httpServer *http.Server
 }
 
-func NewHandler(logger zerolog.Logger, client birthdaypb.BirthdayClient, addr string) Handler {
+func NewHandler(logger zerolog.Logger, client birthdaypb.BirthdayServiceClient, addr string) Handler {
 	logger = logger.With().Str("component", "intent.endpoint.birthday").Logger()
 
 	httpServer := http.Server{
@@ -87,7 +87,7 @@ func (h *handler) SayHappyBirthday(job contract.Job) (*contract.Response, error)
 		Day:      int32(now.Day()),
 	}
 
-	queryReply, err := h.client.Query(context.Background(), &queryBirthdaysRequest)
+	queryReply, err := h.client.QueryBirthdays(context.Background(), &queryBirthdaysRequest)
 	if err != nil {
 		return nil, err
 	}

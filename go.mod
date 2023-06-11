@@ -1,8 +1,10 @@
 module github.com/jukeizu/birthday
 
+go 1.20
+
 require (
 	github.com/cheapRoc/grpc-zerolog v0.0.0-20180425150930-27ca9d023ead
-	github.com/golang/protobuf v1.2.0
+	github.com/golang/protobuf v1.5.3
 	github.com/jnewmano/grpc-json-proxy v0.0.0-20180914194908-38a7fdf2bd5c
 	github.com/jukeizu/contract v0.1.0
 	github.com/lib/pq v1.0.0
@@ -12,10 +14,15 @@ require (
 	github.com/rs/xid v1.2.1
 	github.com/rs/zerolog v1.11.0
 	github.com/shawntoffel/gossage v0.0.1
-	golang.org/x/net v0.0.0-20190213061140-3a22650c66bd
-	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4 // indirect
-	golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a // indirect
-	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2 // indirect
-	google.golang.org/genproto v0.0.0-20190215211957-bd968387e4aa // indirect
-	google.golang.org/grpc v1.18.0
+	google.golang.org/grpc v1.55.0
+	google.golang.org/protobuf v1.30.0
+)
+
+require (
+	github.com/AlekSi/pointer v1.0.0 // indirect
+	github.com/pkg/errors v0.8.1 // indirect
+	golang.org/x/net v0.10.0 // indirect
+	golang.org/x/sys v0.8.0 // indirect
+	golang.org/x/text v0.9.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20230530153820-e85fd2cbaebc // indirect
 )

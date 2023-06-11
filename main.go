@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/cheapRoc/grpc-zerolog"
+	grpczerolog "github.com/cheapRoc/grpc-zerolog"
 	_ "github.com/jnewmano/grpc-json-proxy/codec"
 	"github.com/jukeizu/birthday/api/protobuf-spec/birthdaypb"
 	"github.com/jukeizu/birthday/treediagram"
@@ -20,6 +20,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/keepalive"
+	"google.golang.org/grpc/reflection"
 )
 
 var Version = ""
@@ -101,8 +102,9 @@ func main() {
 
 		grpcServer := newGrpcServer(logger)
 
+		reflection.Register(grpcServer)
 		birthdayServer := NewServer(logger, birthdayRepository, grpcServer)
-		birthdaypb.RegisterBirthdayServer(grpcServer, birthdayServer)
+		birthdaypb.RegisterBirthdayServiceServer(grpcServer, birthdayServer)
 		grpcAddr := ":" + grpcPort
 
 		g.Add(func() error {
@@ -129,7 +131,7 @@ func main() {
 
 		httpAddr := ":" + httpPort
 
-		client := birthdaypb.NewBirthdayClient(clientConn)
+		client := birthdaypb.NewBirthdayServiceClient(clientConn)
 		handler := treediagram.NewHandler(logger, client, httpAddr)
 
 		g.Add(func() error {
@@ -153,7 +155,7 @@ func main() {
 }
 
 func interrupt(cancel <-chan struct{}) error {
-	c := make(chan os.Signal)
+	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 
 	select {

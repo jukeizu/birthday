@@ -20,22 +20,22 @@ func NewServer(logger zerolog.Logger, repository Repository, grpcServer *grpc.Se
 	return Server{logger, repository, grpcServer}
 }
 
-func (s Server) SetBirthday(ctx context.Context, req *birthdaypb.SetBirthdayRequest) (*birthdaypb.SetBirthdayReply, error) {
+func (s Server) SetBirthday(ctx context.Context, req *birthdaypb.SetBirthdayRequest) (*birthdaypb.SetBirthdayResponse, error) {
 	birthday, err := s.repository.SetBirthday(req)
 	if err != nil {
 		return nil, errors.New("couldn't set birthday: " + err.Error())
 	}
 
-	return &birthdaypb.SetBirthdayReply{Birthday: birthday}, nil
+	return &birthdaypb.SetBirthdayResponse{Birthday: birthday}, nil
 }
 
-func (s Server) Query(ctx context.Context, req *birthdaypb.QueryBirthdaysRequest) (*birthdaypb.QueryBirthdaysReply, error) {
+func (s Server) QueryBirthdays(ctx context.Context, req *birthdaypb.QueryBirthdaysRequest) (*birthdaypb.QueryBirthdaysResponse, error) {
 	birthdays, err := s.repository.Query(req)
 	if err != nil {
 		return nil, err
 	}
 
-	return &birthdaypb.QueryBirthdaysReply{Birthdays: birthdays}, nil
+	return &birthdaypb.QueryBirthdaysResponse{Birthdays: birthdays}, nil
 }
 
 func (s Server) Start(addr string) error {
